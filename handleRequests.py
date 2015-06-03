@@ -4,12 +4,12 @@ import requests
 
 def get(url, params):
     # make a get request
-    r = requests.get(url, params)
+    r = requests.get(url, params = params)
     return r
 
 def post(url, params):
     # make a post request
-    r = requests.post(url, params)
+    r = requests.post(url, params = params)
     return r
 
 def getContent(r):
