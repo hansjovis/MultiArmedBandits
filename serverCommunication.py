@@ -8,11 +8,6 @@ Created on Thu May 28 12:35:49 2015
 from config import config
 import handleRequests as hr
 
-TEAM_ID = "TheMulti-ArmedBandits"
-TEAM_PW = "???"
-
-EFFECT_JSON_TEST = "{ \"effect\": { \"Error\": null, \"Success\": 0 } }"
-
 def getContext(run_id, i):
     """ Gets a simulated interaction from a user with the webpage
         from the server.

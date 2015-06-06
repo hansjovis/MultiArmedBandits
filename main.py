@@ -1,9 +1,11 @@
 import serverCommunication
-import algorithm.Algorithm
-import config.config as config
+#import algorithm.Algorithm
+import SGDRegressorAlgorithm
+from config import config
 
 stopped = False
-algorithm = algorithm.Algorithm()
+#algorithm = algorithm.Algorithm()
+algorithm = SGDRegressorAlgorithm.SGDRegressorAlgorithm()
 
 def main():
 	run_id = 0
