@@ -28,7 +28,8 @@ def getContext(run_id, i):
     referer     = context['Referer']
     age         = context['Age']
     
-    return user_id, agent, language, age, referer  
+    return user_id, str(agent), str(language), age, str(referer)
+    #return {'ID':user_id, 'Agent':agent, 'Language':language, 'Age':age, 'Referer':referer}  
 
 
 def proposePage(run_id, i, header, ad_type, color, product_id, price):

@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDRegressor
 import pickle
 import random as rnd
 import algorithm
+import categoryMapping as cm
 
 class SGDRegressorAlgorithm(algorithm.Algorithm):
 
@@ -23,13 +24,16 @@ class SGDRegressorAlgorithm(algorithm.Algorithm):
 			header, ad_type, color, product_id, price
 			To learn from
 		"""
-        header = rnd.choice([5, 15, 35])
-        ad_type = rnd.choice(['skyscraper','square','banner'])
-        color = rnd.choice(['white','green','blue','red','black'])
+        header = rnd.choice(['5','15','35'])
+        ad_type = rnd.choice(['Banner','Skyscraper','Square'])
+        color = rnd.choice(['Black','Blue','Green','Red','White'])
         product_id = rnd.randint(10,26)
-        price = rnd.uniform(0,50)
+        price = rnd.randint(0,50)
         
         return header, ad_type, color, product_id, price
+        
+        #return {'Header': header, 'Adtype': ad_type, 'Color': color,
+        #            'ProductID': product_id, 'Price': price}
 
 
     def learn(self, context, ad_data, result):
@@ -41,6 +45,8 @@ class SGDRegressorAlgorithm(algorithm.Algorithm):
 			boolean or {success/failure}
 			To learn from
 		"""
+        context = cm.factorize(context)
+        ad_data = cm.factorize(ad_data)
         x = context + ad_data
         y = result
         self.regressor = self.regressor.partial_fit([x],y)
@@ -58,9 +64,9 @@ class SGDRegressorAlgorithm(algorithm.Algorithm):
         max_price = 0
         # brute-force way to get the parameters of the ad that
         # gives the best price
-        for header in [5, 15, 35]:
-            for ad_type in ['skyscraper','square','banner']:
-                for color in ['white','green','blue','red','black']:
+        for header in range(0,cm.n_cat['Header']-1):
+            for ad_type in range(0,cm.n_cat['Adtype']-1):
+                for color in range(0,cm.n_cat['Color']-1):
                     for product_id in range(10,26):
                         for price in range(0,50):
                             x = context + (header, ad_type, color, product_id, price)
