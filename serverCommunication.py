@@ -6,6 +6,7 @@ Created on Thu May 28 12:35:49 2015
 """
 
 from config import config
+import time
 import handleRequests as hr
 
 def getContext(run_id, i):
@@ -47,8 +48,10 @@ def proposePage(run_id, i, header, ad_type, color, product_id, price):
                 'color':color,
                 'productid':product_id,
                 'price':price }
+    
     # make a request to the server
     req = hr.get(config['proposeurl'], params)
+    time.sleep(0.25)
     # get the server's response in JSON-form    
     effect = hr.getJSON(req)['effect'] 
     

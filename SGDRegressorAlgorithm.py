@@ -49,7 +49,7 @@ class SGDRegressorAlgorithm(algorithm.Algorithm):
         ad_data = cm.factorize(ad_data)
         x = context + ad_data
         y = result
-        self.regressor = self.regressor.partial_fit([x],y)
+        self.regressor = self.regressor.partial_fit([x],[y])
 		
 
     def save(self):

@@ -12,7 +12,7 @@ Created on Sun Jun 07 14:02:12 2015
 """
 # Note: is in alphabetical order
 cat_int_map = {
-    'Agent':    {'Linux':0, 'Mobile':1, 'OSX':2, 'Windows':3},
+    'Agent':    {'linux':0, 'mobile':1, 'OSX':2, 'windows':3},
     'Language': {'GE':0, 'EN':1, 'NA':2, 'NL':3},
     'Referer':  {'Bing':0, 'Google':1, 'NA':2},
     'Header':   {'5':0, '15':1, '35':2},
@@ -32,16 +32,19 @@ int_cat_map = {
 # Calculate the number of categories in each variable in cat_int_map
 n_cat = {var: len(cats) for (var, cats) in cat_int_map.iteritems()}
 
-def factorize_new(data):
+def factorize(data):
     fact = []
     for item in data:
         if type(item) is str:
             for var in cat_int_map:
                 if item in cat_int_map[var]:
-                    fact = fact + cat_int_map[var][data[var]]
+                    fact = fact + [cat_int_map[var][item]]
+        else:
+            fact = fact + [item]
     return fact
 
-def factorize(data):
+# Assumes that 'data' is a dictionary.
+def factorize_old(data):
     fact = []
     for var in data:
         fact = fact + cat_int_map[var][data[var]]
