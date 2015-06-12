@@ -15,6 +15,7 @@ def main():
         run_id = run_id % 50000
         for i in range(50000):
             print '\rIteration',i,
+            # to prevent dos-attacks?
             time.sleep(0.25)            
             context = serverCommunication.getContext(run_id, i)            
             ad_data = algorithm.make_selection(context)            
