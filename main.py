@@ -5,8 +5,9 @@ from config import config
 stopped = False
 algorithm = Algorithm()
 
-def main():
+def main(max_its=None):
 	run_id = 0
+	print "-- Starting --"
 	while not stopped:
 		run_id+=1
 		run_id = run_id % 50000
@@ -17,9 +18,12 @@ def main():
 						ad_data['productid'], ad_data['price'])
 			result  = serverCommunication.proposePage(run_id, i, *datalist)
 			algorithm.learn(context, ad_data, result)
-			if i % config.saveinterval == 0:
+			if i % config['saveinterval'] == 0:
 				algorithm.save()
 				print "Saved"
+				if max_its is not None and run_id * 50000 + i > max_its:
+					print "-- Stopping --"
+					return
 
 if __name__ == "__main__":
 	main()

@@ -2,6 +2,11 @@ import pickle
 import os
 import dataHandler
 
+mapping = {'header': {0: '5', 1: '15', 2: '35'},
+		   'adtype': {0: 'skyscraper', 1: 'square', 2: 'banner'},
+		   'color':  {0: 'green', 1: 'blue', 2: 'red', 3: 'black', 4: 'white'},
+		  }
+
 class Algorithm:
 	def __init__(self, model=None):
 		""" Constructor for Algorithm.
@@ -23,6 +28,20 @@ class Algorithm:
 		else:
 			self.predictor = model
 	
+	def convert(self, data):
+		""" Uses mapping as defined above to map integers to their
+			discrete representations.
+		"""
+		if 'productid' in data:
+			data['productid'] = data['productid'] + 10
+		if 'price' in data:
+			from decimal import Decimal
+			data['price'] = Decimal(data['price']).quantize(Decimal('0.01')).to_eng_string()
+		for key in data:
+			if key in mapping:
+				data[key] = mapping[key][data[key]]
+		return data
+	
 	def make_selection(self, context):
 		""" Expects a context of
 			user_id, agent, language, age, referer
@@ -30,7 +49,7 @@ class Algorithm:
 			header, ad_type, color, product_id, price
 			To learn from
 		"""
-		return self.predictor.getPoint(context)
+		return self.convert(self.predictor.getPoint(context))
 	
 	def learn(self, context, ad_data, result):
 		""" Expects a context of
@@ -48,7 +67,7 @@ class Algorithm:
 		i = 0
 		while os.path.exists("models/model{}".format(i)):
 			i+=1
-		with open("models/model{}".format(i)) as openfile:
+		with open("models/model{}".format(i), 'wb') as openfile:
 			pickle.dump(self.predictor, openfile)
 
 	def predict(self, context):
