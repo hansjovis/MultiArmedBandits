@@ -4,5 +4,5 @@
 *.csv
 *.pyc
 
-data/
-data/*
+models/
+models/*
