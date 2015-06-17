@@ -1,9 +1,9 @@
 import serverCommunication
-import algorithm.Algorithm
-import config.config as config
+from algorithm import Algorithm
+from config import config
 
 stopped = False
-algorithm = algorithm.Algorithm()
+algorithm = Algorithm()
 
 def main():
 	run_id = 0
@@ -13,7 +13,9 @@ def main():
 		for i in range(50000):
 			context = serverCommunication.getContext(run_id, i)
 			ad_data = algorithm.make_selection(context)
-			result  = serverCommunication.proposePage(run_id, i, *ad_data)
+			datalist = (ad_data['header'], ad_data['adtype'], ad_data['color'],
+						ad_data['productid'], ad_data['price'])
+			result  = serverCommunication.proposePage(run_id, i, *datalist)
 			algorithm.learn(context, ad_data, result)
 			if i % config.saveinterval == 0:
 				algorithm.save()

@@ -36,7 +36,7 @@ def getContext(run_id, i):
     return user_id, agent, language, age, referer  
 
 
-def proposePage(run_id, i, header, ad_type, color, product_id, price):
+def proposePage(run_id, i, header, adtype, color, productid, price):
     """ Proposes the parameters of the ad to show to the interaction i
         from run number run_id. Returns whether the user buys the product
         or not.
@@ -47,18 +47,22 @@ def proposePage(run_id, i, header, ad_type, color, product_id, price):
                 'runid':run_id,
                 'i':i,
                 'header':header,
-                'adtype':ad_type,
+                'adtype':adtype,
                 'color':color,
-                'productid':product_id,
+                'productid':productid,
                 'price':price }
     # make a request to the server
     req = hr.get(config['proposeurl'], params)
+	
+    if 'error' in hr.getJSON(req):
+        raise RuntimeError('proposedPage: something else went wrong with:\n{}\n{}'.format(hr.getJSON(req), params))
+    
     # get the server's response in JSON-form    
     effect = hr.getJSON(req)['effect'] 
-    
+
     error   = effect['Error']
     if error is not None:
-        raise RuntimeError('proposePage: passed the wrong arguments.')
+        raise RuntimeError('proposePage: passed the wrong arguments.\n{}\n{}'.format(hr.getJSON(req), params))
         
     success = effect['Success']
     return success
