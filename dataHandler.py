@@ -24,6 +24,10 @@ class Beta():
 	def get(self):
 		return scipy.stats.beta(self.alpha, self.beta).rvs()
 	
+	def add(self, other):
+		self.alpha += other.alpha
+		self.beta  += other.beta
+	
 class Betas():
 	""" Class that covers multiple betas to use for discrete,
 		 non-ordinal variables"""
@@ -32,6 +36,10 @@ class Betas():
 	
 	def get(self):
 		return [beta.get() for beta in self.betas]
+	
+	def add(self, other):
+		for beta,obeta in zip(self.betas, other.betas):
+			beta.add(obeta)
 
 class Distribution():
 	""" Class that covers all distributions. Call get to get a random value.
@@ -60,19 +68,34 @@ class Distribution():
 		else:
 			v = self.distribution.get()
 			return self.mn + v * (self.mx - self.mn)
+	
+	def add(self, other):
+		self.distribution.add(other.distribution)
 
 class DataGenerator():
-	def __init__(self):
-		self.distribution = {
-			'header': Distribution(types['header'], 'uniform', 3),
-			'adtype': Distribution(types['adtype'], 'uniform', 3),
-			'color':  Distribution(types['color'],  'uniform', 5),
-			'productid': Distribution(types['productid'], 'uniform', 16),
-			'price': Distribution(types['price'], 'uniform', 0, 50)
-		}
+	def __init__(self, models=None):
+		if models is None:
+			self.distribution = {
+				'header': Distribution(types['header'], 'uniform', 3),
+				'adtype': Distribution(types['adtype'], 'uniform', 3),
+				'color':  Distribution(types['color'],  'uniform', 5),
+				'productid': Distribution(types['productid'], 'uniform', 16),
+				'price': Distribution(types['price'], 'uniform', 0, 50)
+			}
+		else:
+			self.distribution = self.merge(models)
 	
 	def getPoint(self, context):
 		point = {}
 		for key in self.distribution:
 			point.update({key: self.distribution[key].get()})
 		return point
+
+	def merge(self, models):
+		distribution = {}
+		for var in ['header', 'adtype', 'color', 'productid', 'price']:
+			model = models[0]
+			for other in models[1:]:
+				model.add(other)
+			distribution.update({var: model})
+		return distribution

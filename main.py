@@ -5,9 +5,9 @@ from config import config
 stopped = False
 algorithm = Algorithm()
 
-def main(max_its=None):
+def main(max_its=None, verbose=True):
 	run_id = 0
-	print "-- Starting --"
+	if verbose: print "-- Starting --"
 	while not stopped:
 		run_id+=1
 		run_id = run_id % 50000
@@ -20,9 +20,9 @@ def main(max_its=None):
 			algorithm.learn(context, ad_data, result)
 			if i % config['saveinterval'] == 0:
 				algorithm.save()
-				print "Saved"
+				if verbose: print "Saved"
 				if max_its is not None and run_id * 50000 + i > max_its:
-					print "-- Stopping --"
+					if verbose: print "-- Stopping --"
 					return
 
 if __name__ == "__main__":

@@ -63,12 +63,21 @@ class Algorithm:
 		pass
 	
 	def save(self):
-		""" Saves the model, overwrites previous models """
+		""" Saves the model to new file """
+		model = self.lastmodel()
+		with open("models/model{}".format(model+1), 'wb') as openfile:
+			pickle.dump(self.predictor, openfile)
+	
+	def lastmodel(self):
 		i = 0
 		while os.path.exists("models/model{}".format(i)):
 			i+=1
-		with open("models/model{}".format(i), 'wb') as openfile:
-			pickle.dump(self.predictor, openfile)
+		return i-1
+	
+	def load(self, name=None):
+		if name is None:
+			name = self.lastmodel()
+		return pickle.load("data/" + name)
 
 	def predict(self, context):
 		""" Like giveselection, but tries to maximize gain 
