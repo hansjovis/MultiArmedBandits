@@ -62,9 +62,10 @@ class Algorithm:
 		"""
 		pass
 	
-	def save(self):
+	def save(self, model=None):
 		""" Saves the model to new file """
-		model = self.lastmodel()
+		if model is None:
+			model = self.lastmodel()
 		with open("models/model{}".format(model+1), 'wb') as openfile:
 			pickle.dump(self.predictor, openfile)
 	
@@ -77,7 +78,8 @@ class Algorithm:
 	def load(self, name=None):
 		if name is None:
 			name = self.lastmodel()
-		return pickle.load("data/" + name)
+		with open("models/" + name) as openfile:
+			return pickle.load(openfile)
 
 	def predict(self, context):
 		""" Like giveselection, but tries to maximize gain 

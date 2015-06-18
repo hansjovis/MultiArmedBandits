@@ -83,7 +83,7 @@ class DataGenerator():
 				'price': Distribution(types['price'], 'uniform', 0, 50)
 			}
 		else:
-			self.distribution = self.merge(models)
+			self.merge(models)
 	
 	def getPoint(self, context):
 		point = {}
@@ -92,10 +92,7 @@ class DataGenerator():
 		return point
 
 	def merge(self, models):
-		distribution = {}
+		self.distribution = models[0].distribution
 		for var in ['header', 'adtype', 'color', 'productid', 'price']:
-			model = models[0]
 			for other in models[1:]:
-				model.add(other)
-			distribution.update({var: model})
-		return distribution
+				self.distribution[var].add(other.distribution[var])
