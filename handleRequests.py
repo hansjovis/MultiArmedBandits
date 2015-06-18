@@ -4,13 +4,19 @@ import requests
 
 def get(url, params):
     # make a get request
-    r = requests.get(url, params = params)
-    return r
+    while True:
+        try:
+            return requests.get(url, params = params)
+        except requests.ConnectionError:
+            pass
 
 def post(url, params):
     # make a post request
-    r = requests.post(url, params = params)
-    return r
+    while True:
+        try:
+            return requests.post(url, params = params)
+        except requests.ConnectionError:
+            pass
 
 def getContent(r):
     return r.text
