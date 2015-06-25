@@ -1,12 +1,12 @@
 import serverCommunication
 #import algorithm.Algorithm
-import SGDRegressorAlgorithm
+import genetic
 import config
 import time
 
 stopped = False
 #algorithm = algorithm.Algorithm()
-algorithm = SGDRegressorAlgorithm.SGDRegressorAlgorithm()
+algorithm = genetic.GeneticAlgorithm()
 
 def main():
     run_id = 0
@@ -15,8 +15,8 @@ def main():
         run_id = run_id % 50000
         for i in range(50000):
             print '\rIteration',i,
-            # to prevent dos-attacks?
-            time.sleep(0.25)            
+            # to prevent ddos-attacks?
+            time.sleep(0.1)            
             context = serverCommunication.getContext(run_id, i)            
             ad_data = algorithm.make_selection(context)            
             result  = serverCommunication.proposePage(run_id, i, *ad_data)

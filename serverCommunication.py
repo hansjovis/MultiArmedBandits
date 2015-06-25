@@ -51,15 +51,22 @@ def proposePage(run_id, i, header, ad_type, color, product_id, price):
     
     # make a request to the server
     req = hr.get(config['proposeurl'], params)
-    time.sleep(0.25)
-    # get the server's response in JSON-form    
-    effect = hr.getJSON(req)['effect'] 
+    
+    # get the server's response in JSON-form
+    response = hr.getJSON(req)
+    time.sleep(0.1)       
+    
+    if 'note' in response:
+        return 0
+    
+    effect = response['effect']        
     
     error   = effect['Error']
     if error is not None:
         raise RuntimeError('proposePage: passed the wrong arguments.')
         
     success = effect['Success']
+    
     return success
 
 
