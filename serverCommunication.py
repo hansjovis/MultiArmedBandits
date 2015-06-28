@@ -9,7 +9,7 @@ from config import config
 import handleRequests as hr
 
 TEAM_ID = "TheMulti-ArmedBandits"
-TEAM_PW = "???"
+TEAM_PW = "bb3d9c0ea5aaab61db6f035e7de4870c"
 
 EFFECT_JSON_TEST = "{ \"effect\": { \"Error\": null, \"Success\": 0 } }"
 

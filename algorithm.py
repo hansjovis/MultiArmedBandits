@@ -27,7 +27,6 @@ class Algorithm:
 				self.predictor = pickle.load("models/" + model)
 		else:
 			self.predictor = model
-	
 	def convert(self, data):
 		""" Uses mapping as defined above to map integers to their
 			discrete representations.
@@ -41,7 +40,7 @@ class Algorithm:
 			if key in mapping:
 				data[key] = mapping[key][data[key]]
 		return data
-	
+
 	def make_selection(self, context):
 		""" Expects a context of
 			user_id, agent, language, age, referer
@@ -50,7 +49,7 @@ class Algorithm:
 			To learn from
 		"""
 		return self.convert(self.predictor.getPoint(context))
-	
+
 	def learn(self, context, ad_data, result):
 		""" Expects a context of
 			user_id, agent, language, age, referer
@@ -60,21 +59,21 @@ class Algorithm:
 			boolean or {success/failure}
 			To learn from
 		"""
-		pass
-	
+        pass
+
 	def save(self, model=None):
 		""" Saves the model to new file """
 		if model is None:
 			model = self.lastmodel()
 		with open("models/model{}".format(model+1), 'wb') as openfile:
 			pickle.dump(self.predictor, openfile)
-	
+
 	def lastmodel(self):
 		i = 0
 		while os.path.exists("models/model{}".format(i)):
 			i+=1
 		return i-1
-	
+
 	def load(self, name=None):
 		if name is None:
 			name = self.lastmodel()
@@ -82,7 +81,7 @@ class Algorithm:
 			return pickle.load(openfile)
 
 	def predict(self, context):
-		""" Like giveselection, but tries to maximize gain 
+		""" Like giveselection, but tries to maximize gain
 			as opposed to information
 		"""
 		pass
