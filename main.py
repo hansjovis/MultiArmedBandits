@@ -1,12 +1,17 @@
 import serverCommunication
 from algorithm import Algorithm
 from config import config
+from AssumptionAnnealing import MetaModel, Model
+import sys
 
 stopped = False
 algorithm = Algorithm()
 
 def meta_model_main(max_its=config['max_its'], verbose=True):
-	
+    run_id = 0
+    if verbose: print "-- Starting --"
+    MM = MetaModel()
+    MM.run()
 
 def main(max_its=config['max_its'], verbose=True):
     run_id = 0
@@ -21,7 +26,7 @@ def main(max_its=config['max_its'], verbose=True):
             algorithm.learn(context, ad_data, result)
             if verbose and i % config['updateinterval'] == 0:
                 print "Iteration #{}".format(i)
-				print "Result: {}".format(result)
+                print "Result: {}".format(result)
             if i % config['saveinterval'] == 0:
                 algorithm.save()
                 if verbose: print "Saved"
@@ -34,4 +39,7 @@ def main(max_its=config['max_its'], verbose=True):
         run_id = run_id % 50000
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1] and sys.argv[1] == 'meta':
+        meta_model_main()
+    else:
+        main()

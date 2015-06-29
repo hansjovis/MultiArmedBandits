@@ -19,6 +19,7 @@ class Algorithm:
 		"""
         # Best lever is selected for a proportion 1 - eta
         # Random lever is selected for a proportion eta
+        self.eta = eta
         if model is None:
             self.predictor = dataHandler.DataGenerator()
         elif type(model) == str:
@@ -62,7 +63,7 @@ class Algorithm:
             return self.convert(self.predictor.getBestPoint(context))
 
 
-    def learn(self, context, ad_data, result):
+    def learn(self, context, ad_data=None, result=None):
         """ Expects a context of
                 user_id, agent, language, age, referer
                 ad_data:
@@ -78,7 +79,7 @@ class Algorithm:
         """ Saves the model to new file """
         if model is None:
             model = self.lastmodel()
-        with open(os.path.join("models", "model{}".format(model + 1), 'wb') as openfile:
+        with open(os.path.join("models", "model{}".format(model + 1)), 'wb') as openfile:
             pickle.dump(self.predictor, openfile)
 
 
