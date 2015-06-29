@@ -38,71 +38,71 @@ class Algorithm:
             self.predictor = model
 
 
-def convert(self, data):
-    """ Uses mapping as defined above to map integers to their
-			discrete representations.
-		"""
-    if 'productid' in data:
-        data['productid'] = data['productid'] + 10
-    if 'price' in data:
-        from decimal import Decimal
+    def convert(self, data):
+        """ Uses mapping as defined above to map integers to their
+                discrete representations.
+            """
+        if 'productid' in data:
+            data['productid'] = data['productid'] + 10
+        if 'price' in data:
+            from decimal import Decimal
 
-        data['price'] = Decimal(data['price']).quantize(Decimal('0.01')).to_eng_string()
-    for key in data:
-        if key in mapping:
-            data[key] = mapping[key][data[key]]
-    return data
-
-
-def make_selection(self, context):
-    """ Expects a context of
-			user_id, agent, language, age, referer
-			Produces a set of
-			header, ad_type, color, product_id, price
-			To learn from
-		"""
-    if(rnd.random < self.eta):
-        return self.convert(self.predictor.getPoint(context))
-    else:
-        return self.convert(self.predictor.getBestPoint(context))
+            data['price'] = Decimal(data['price']).quantize(Decimal('0.01')).to_eng_string()
+        for key in data:
+            if key in mapping:
+                data[key] = mapping[key][data[key]]
+        return data
 
 
-def learn(self, context, ad_data, result):
-    """ Expects a context of
-			user_id, agent, language, age, referer
-			ad_data:
-			header, ad_type, color, product_id, price
-			result:
-			boolean or {success/failure}
-			To learn from
-		"""
-    # update distribution
-    self.predictor.updateDistribution()
-
-def save(self, model=None):
-    """ Saves the model to new file """
-    if model is None:
-        model = self.lastmodel()
-    with open("models/model{}".format(model + 1), 'wb') as openfile:
-        pickle.dump(self.predictor, openfile)
+    def make_selection(self, context):
+        """ Expects a context of
+                user_id, agent, language, age, referer
+                Produces a set of
+                header, ad_type, color, product_id, price
+                To learn from
+            """
+        if(rnd.random < self.eta):
+            return self.convert(self.predictor.getPoint(context))
+        else:
+            return self.convert(self.predictor.getBestPoint(context))
 
 
-def lastmodel(self):
-    i = 0
-    while os.path.exists("models/model{}".format(i)):
-        i += 1
-    return i - 1
+    def learn(self, context, ad_data, result):
+        """ Expects a context of
+                user_id, agent, language, age, referer
+                ad_data:
+                header, ad_type, color, product_id, price
+                result:
+                boolean or {success/failure}
+                To learn from
+            """
+        # update distribution
+        self.predictor.updateDistribution(result)
+
+    def save(self, model=None):
+        """ Saves the model to new file """
+        if model is None:
+            model = self.lastmodel()
+        with open("models/model{}".format(model + 1), 'wb') as openfile:
+            pickle.dump(self.predictor, openfile)
 
 
-def load(self, name=None):
-    if name is None:
-        name = self.lastmodel()
-    with open("models/" + name) as openfile:
-        return pickle.load(openfile)
+    def lastmodel(self):
+        i = 0
+        while os.path.exists("models/model{}".format(i)):
+            i += 1
+        return i - 1
 
 
-def predict(self, context):
-    """ Like giveselection, but tries to maximize gain
-			as opposed to information
-		"""
-    pass
+    def load(self, name=None):
+        if name is None:
+            name = self.lastmodel()
+        with open("models/" + name) as openfile:
+            return pickle.load(openfile)
+
+
+    def predict(self, context):
+        """ Like giveselection, but tries to maximize gain
+                as opposed to information
+            """
+        pass

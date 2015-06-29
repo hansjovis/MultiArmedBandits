@@ -56,6 +56,11 @@ class Betas():
         for beta, obeta in zip(self.betas, other.betas):
             beta.add(obeta)
 
+    def updateBeta(self):
+        [beta.updateAlpha() for beta in self.betas]
+
+    def updateAlpha(self):
+        [beta.updateAlpha() for beta in self.betas]
 
 class Distribution():
     """ Class that covers all distributions. Call get to get a random value.
