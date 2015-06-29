@@ -63,8 +63,9 @@ class ThompsonSampling:
 			header, ad_type, color, product_id, price
 			To learn from
 		"""
+        #TODO: update distribution P(theta|D) = PI P(r_i | a_i, x_i, theta) * prior
+
         # sample according to Thompson sampling
-        #TODO: change, this is for normal, not contextual bandit problems
         return self.convert(self.predictor.getTSPoint(context))
 
 
@@ -81,6 +82,7 @@ def learn(self, context, ad_data, result):
     tlist = [context, ad_data, result]
     if tlist not in self.observations:
         self.observations.append([context, ad_data, result])
+
 
 
 def save(self, model=None):
