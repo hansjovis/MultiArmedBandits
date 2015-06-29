@@ -5,6 +5,8 @@ from config import config
 stopped = False
 algorithm = Algorithm()
 
+def meta_model_main(max_its=config['max_its'], verbose=True):
+	
 
 def main(max_its=config['max_its'], verbose=True):
     run_id = 0
@@ -19,10 +21,11 @@ def main(max_its=config['max_its'], verbose=True):
             algorithm.learn(context, ad_data, result)
             if verbose and i % config['updateinterval'] == 0:
                 print "Iteration #{}".format(i)
+				print "Result: {}".format(result)
             if i % config['saveinterval'] == 0:
                 algorithm.save()
                 if verbose: print "Saved"
-            if max_its is not None and run_id * 50000 + i > max_its:
+            if max_its is not None and run_id * 50000 + i >= max_its:
                 if verbose: print "-- Stopping --"
                 algorithm.save()
                 if verbose: print "Saved"

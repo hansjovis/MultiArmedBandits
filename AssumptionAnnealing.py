@@ -1,4 +1,8 @@
 from config import config
+import numpy as np
+import itertools
+from algorithm import Algorithm
+import copy
 
 class MetaModel:
 	""" Metamodels are a kind of ensemble,
@@ -89,9 +93,13 @@ class Model:
     """ Abstract model class
     """
 
-    def __init__(self):
+    def __init__(self, lr=0.001):
         """ Generic constructor """
-        pass
+		self.variables = []
+		self.estimates = {}
+		self.betas = {}
+		self.lr = lr
+		self.randomChooser = Algorithm()
     
     def choose(self, context, epsilon):
         """ Makes a choice of the five ad variables given context
@@ -103,20 +111,73 @@ class Model:
             @param epsilon {float} exploration probability
             @return {dict} containing choice values
         """
-        pass
+		if np.random.uniform() < epsilon:
+			return self.randomChooser.make_selection(context)
+		else:
+			return self.maximumlikelihood(context)
+	
+	def maximumlikelihood(self, context):
+		""" Uses expectation maximization to get an estimate of the best variables:
+			- Freeze all but one variable
+			- Argmax prediction with arg = that one variable
+			- Repeat all variables
+			- Repeat 'until convergence'
+		"""
+		for i in range(5): # Repeat to improve results
+			for var in self.estimates: # Grab previous estimate
+				prev = predict(context, var, self.estimates[var] + 1)
+				curr = predict(context, var, self.estimates[var] - 1)
+				direction = prev < curr # Go toward the higher value
+				if not direction:
+					prev, curr = curr, prev
+				while prev < curr: # Until you reached max
+					prev = curr
+					curr = predict(context, var, prev + 2*direction - 1)
+				self.estimates[var] = prev # Update estimate
+		
+	def predict(self, context, variable=None, estimate=None):
+		""" Predicts the value given context variables.
+			The method handles two cases:
+				variable is provided: then
+					context only contains user context
+					ad context will be grabbed from self.estimates
+					self.estimates[variable] will be estimate
+				else
+					context contains all context
+		"""
+			
+		if variable is not None:
+			context = copy.copy(context)
+			cur_estimates.update({variable: estimate})
+			context.update(cur_estimates)
+		prediction = 0
+		for vlist in self.variables:
+			prediction += self.betas[vlist] * np.prod([context[v] for v in vlist])
+		return prediction
 
     def learn(self, context, choices, result):
         """ Updates the model given the context, choices and result
             @param context {dict} containing context variables
             @param choices {dict} containing variables from last choose
             @param result {float} gain (succes * reward)
-            @return {void} his function changes the object
+            @return {void} this function changes the object
         """
-        pass
+		context.update(choices)
+		prediction = 0
+		update = -self.lr * (prediction - result)
+		for vlist in self.variables:
+			self.betas[vlist] = self.betas[vlist] + update
+		self.randomChooser.learn(result)
     
     def extend(self, var):
         """ Extend the model with variable var
             @param var {string} variable from context or choices
             @return {void} this function changes the object
         """
-        pass
+        for v in self.variables:
+			b = self.betas[v]
+			self.variables.append(v + [var])
+			self.betas.update({v + [var]: 0})
+		self.variables.append([var])
+		self.betas.update({[var]: 0})
+		self.estimates.update({var: 0})
