@@ -18,11 +18,12 @@ class MainWindow(QtGui.QMainWindow):
     
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi("BanditsGUI.ui", self)
+        uic.loadUi("QtUI/BanditsGUI.ui", self)
         
         self.running = False
         
         # rewards on the y-axis, iterations on the x-axis
+        self.total_reward = 0
         self.rewards = []
         self.iterations = []
         
@@ -43,18 +44,26 @@ class MainWindow(QtGui.QMainWindow):
         # show the GUI
         self.show()
     
-    def change_run_id(self,new_id):
+    def change_run_id(self,new_id):        
         self.run_id = new_id        
     
     def start_run(self):
+        self.running = False
+        
         self.plot_reward_over_time.setTitle("Total reward over time (run id "+str(self.run_id)+")")
+        self.rewards = []
+        self.iterations = []
+        self.plot_curve.setData(self.iterations, self.rewards)
+        self.plot_reward_over_time.replot()
+        
         self.running = True
 
     def stop_run(self):
         self.running = False       
     
     def add_new_observed_reward(self, iteration_n, new_reward):
-        self.rewards = self.rewards + [new_reward]
+        self.total_reward = self.total_reward + new_reward
+        self.rewards = self.rewards + [self.total_reward]
         self.iterations = self.iterations + [iteration_n]
         
         #print self.rewards, self.iterations        
@@ -67,14 +76,15 @@ class MainWindow(QtGui.QMainWindow):
     """
     def save_plot(self):
         # Stop running
-        self.running = False        
+        self.running = False
+        # Which path the save dialog opens in.        
         default_path = " "
-        # Open save dialog and get the save-path.
+        # Open save dialog and get the selected save-path.
         save_path = QtGui.QFileDialog.getSaveFileName(self, 'Save', default_path, filter="*.png")
         # Save image.        
         QtGui.QPixmap.grabWidget(self.plot_reward_over_time).save(save_path)
 
-if __name__ == '__main__':
+def test_UI():
     app = QtGui.QApplication(sys.argv)
     window = MainWindow()    
     
