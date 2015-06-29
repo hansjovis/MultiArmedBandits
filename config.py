@@ -4,6 +4,7 @@ config = {
 'contexturl':'http://krabspin.uci.ru.nl/getcontext.json/',
 'proposeurl':'http://krabspin.uci.ru.nl/proposePage.json/',
 'saveinterval': 1000,
-'updateinterval': 1#,
+'updateinterval': 1,
+'max_its':1000#,
 }
 

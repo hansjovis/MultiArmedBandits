@@ -10,7 +10,7 @@ mapping = {'header': {0: '5', 1: '15', 2: '35'},
 
 
 class Algorithm:
-    def __init__(self, model=None, eta=None):
+    def __init__(self, model=None, eta=0.1):
         """ Constructor for Algorithm.
 			Optional arg model: if string, loads corresponding file
 								unless it is 'latest', then loads latest
@@ -19,11 +19,6 @@ class Algorithm:
 		"""
         # Best lever is selected for a proportion 1 - eta
         # Random lever is selected for a proportion eta
-        if eta is None:
-            self.eta = 0.1
-        else:
-            self.eta = eta
-
         if model is None:
             self.predictor = dataHandler.DataGenerator()
         elif type(model) == str:
@@ -83,7 +78,7 @@ class Algorithm:
         """ Saves the model to new file """
         if model is None:
             model = self.lastmodel()
-        with open("models/model{}".format(model + 1), 'wb') as openfile:
+        with open(os.path.join("models", "model{}".format(model + 1), 'wb') as openfile:
             pickle.dump(self.predictor, openfile)
 
 

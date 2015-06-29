@@ -6,7 +6,7 @@ stopped = False
 algorithm = Algorithm()
 
 
-def main(max_its=None, verbose=True):
+def main(max_its=config['max_its'], verbose=True):
     run_id = 0
     if verbose: print "-- Starting --"
     while not stopped:
@@ -24,6 +24,8 @@ def main(max_its=None, verbose=True):
                 if verbose: print "Saved"
             if max_its is not None and run_id * 50000 + i > max_its:
                 if verbose: print "-- Stopping --"
+                algorithm.save()
+                if verbose: print "Saved"
                 return
         run_id += 1
         run_id = run_id % 50000
