@@ -9,12 +9,23 @@
 import scipy.stats
 import numpy as np
 
+
 types = {'header': 'ord',
          'adtype': 'disc',
          'color': 'disc',
          'productid': 'disc',
          'price': 'flt'}
 
+mapping = {'header': {'5': 0, '15': 1, '35': 2},
+           'adtype': {'skyscraper': 0, 'square': 1, 'banner': 2},
+           'color': {'green': 0, 'blue': 1, 'red': 2, 'black': 3, 'white': 4},
+           }
+
+mapHeader = {
+    '5': 0,
+    '15': 0.5,
+    '35': 1
+}
 
 class Beta():
     def __init__(self):
@@ -24,15 +35,19 @@ class Beta():
     def get(self):
         return scipy.stats.beta(self.alpha, self.beta).rvs()
 
-    def getThompsonSample(self, trials, successes):
-        return scipy.stats.beta(self.alpha + trials, self.beta + (successes - trials)).rvs()
+    def getMean(self):
+        return scipy.stats.beta(self.alpha, self.beta).mean()
+
+    def updateAlpha(self, value):
+        self.alpha += value
+
+    def updateBeta(self, value):
+        self.beta += value
 
     def add(self, other):
         self.alpha += other.alpha
         self.beta += other.beta
 
-    def updateDistribution(self):
-        pass
 
 class Betas():
     """ Class that covers multiple betas to use for discrete,
@@ -44,15 +59,20 @@ class Betas():
     def get(self):
         return [beta.get() for beta in self.betas]
 
-    def getThompsonSample(self, trials, successes):
-        return [beta.getThompsonSample(trials, successes) for beta in self.betas]
+    def getBest(self):
+        means = [beta.getMean() for beta in self.betas]
+        maxbeta = means.index(max(means))
+        return self.betas[maxbeta].get()
 
     def add(self, other):
         for beta, obeta in zip(self.betas, other.betas):
             beta.add(obeta)
 
-    def updateDistribution(self):
-        pass
+    def updateBeta(self, index):
+        self.betas[index].updateBeta(1)
+
+    def updateAlpha(self, index):
+        self.betas[index].updateAlpha(1)
 
 class Distribution():
     """ Class that covers all distributions. Call get to get a random value.
@@ -83,23 +103,42 @@ class Distribution():
             v = self.distribution.get()
             return self.mn + v * (self.mx - self.mn)
 
-    def getThompsonSample(self, trials, successes):
+    def getBest(self):
         if self.dtype == 'ord':
-            v = self.distribution.getThompsonSample(trials, successes)
+            v = self.distribution.getMean()
             return np.int(v / self.thresh)
         elif self.dtype == 'disc':
-            vs = self.distribution.getThompsonSample(trials, successes)
+            vs = self.distribution.getBest()
             return np.argmax(vs)
         else:
-            v = self.distribution.getThompsonSample(trials, successes)
+            v = self.distribution.getMean()
             return self.mn + v * (self.mx - self.mn)
-
 
     def add(self, other):
         self.distribution.add(other.distribution)
 
-    def updateDistribution(self):
-        pass
+    def updateDistribution(self, value, success, key):
+        if self.dtype == 'ord':
+            if success:
+                self.distribution.updateAlpha(mapHeader[value])
+            else:
+                self.distribution.updateBeta(mapHeader[value])
+        elif self.dtype == 'disc':
+            if success:
+                if key == 'productid':
+                    self.distribution.updateAlpha(value-10)
+                else:
+                    self.distribution.updateAlpha(mapping[key][value])
+            else:
+                if key == 'productid':
+                    self.distribution.updateBeta(value-10)
+                else:
+                    self.distribution.updateBeta(mapping[key][value])
+        else:
+            if success:
+                self.distribution.updateAlpha(float(value)/50)
+            else:
+                self.distribution.updateBeta(1 - (float(value)/50))
 
 class DataGenerator():
     def __init__(self, models=None):
@@ -120,15 +159,16 @@ class DataGenerator():
             point.update({key: self.distribution[key].get()})
         return point
 
-    def getTSPoint(self, context, trial, successes):
-        #TODO: use context
+    def getBestPoint(self, context):
         point = {}
         for key in self.distribution:
-            point.update({key: self.distribution[key].get(trial, successes)})
+            point.update({key: self.distribution[key].getBest()})
         return point
 
-    def updateDistribution(self):
-        pass
+    def updateDistribution(self, ad_data, success, context):
+        #TODO: use context
+        for key in self.distribution:
+            self.distribution[key].updateDistribution(ad_data[key], success, key)
 
     def merge(self, models):
         self.distribution = models[0].distribution

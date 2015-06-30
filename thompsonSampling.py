@@ -17,13 +17,9 @@ class ThompsonSampling:
 								if DataGenerator, uses that as model
 								else (if None) creates new model
 		"""
-
+        # TODO: use context
         # List of past observations
         self.observations = []
-        # Amount of trials
-        self.trials = 0
-        # Amount of successes
-        self.successes = 0
         # Received context
         self.context = context
 
@@ -63,8 +59,7 @@ class ThompsonSampling:
 			header, ad_type, color, product_id, price
 			To learn from
 		"""
-        # sample according to Thompson sampling
-        return self.convert(self.predictor.getTSPoint(context))
+        return self.convert(self.predictor.getBestPoint(context))
 
 
 # Update distribution
@@ -77,10 +72,13 @@ def learn(self, context, ad_data, result):
 			boolean or {success/failure}
 			To learn from
 		"""
-    tlist = [context, ad_data, result]
-    if tlist not in self.observations:
-        self.observations.append([context, ad_data, result])
-    self.predictor.updateDistribution(result)
+
+    # Used only for contextual bandits
+    #tlist = [context, ad_data, result]
+    #if tlist not in self.observations:
+    #    self.observations.append([context, ad_data, result])
+
+    self.predictor.updateDistribution(ad_data, result)
 
 
 
