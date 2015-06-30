@@ -83,7 +83,7 @@ class Algorithm:
                 To learn from
             """
         # update distribution
-        self.predictor.updateDistribution(ad_data, result)
+        self.predictor.updateDistribution(ad_data, result, context)
 
     def save(self, model=None):
         """ Saves the model to new file """
