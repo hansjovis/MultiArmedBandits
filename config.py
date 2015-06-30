@@ -10,8 +10,8 @@ config = {
 'metamodel': {
 		'run_id_min'    : 0,
 		'run_id_max'    : 10000,
-		'trainits'      : 1,
-		'testits'       : 10,
+		'trainits'      : 1000,
+		'testits'       : 100,
 		'conv_threshold': 1.1#,
 	},
 'variables': [

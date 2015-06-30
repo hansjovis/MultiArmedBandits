@@ -13,13 +13,10 @@ TEAM_PW = "???"
 
 EFFECT_JSON_TEST = "{ \"effect\": { \"Error\": null, \"Success\": 0 } }"
 
-def getContext(run_id, i):
+def getContext(run_id, i, returntype=tuple):
     """ Gets a simulated interaction from a user with the webpage
         from the server.
     """ 
-
-    if config['verbose']:
-        print "Getting context"
 
     params = {  'teamid':config['teamid'], 
                 'teampw':config['teampw'], 
@@ -36,7 +33,10 @@ def getContext(run_id, i):
     referer     = context['Referer']
     age         = context['Age']
     
-    return user_id, agent, language, age, referer  
+    if returntype is tuple:
+        return user_id, agent, language, age, referer  
+    else:
+        return context
 
 
 def proposePage(run_id, i, header, adtype, color, productid, price):
@@ -45,9 +45,6 @@ def proposePage(run_id, i, header, adtype, color, productid, price):
         or not.
     """
     
-    if config['verbose']:
-        print "Proposing page"
-
     params = {  'teamid':config['teamid'],
                 'teampw':config['teampw'],
                 'runid':run_id,
@@ -57,14 +54,16 @@ def proposePage(run_id, i, header, adtype, color, productid, price):
                 'color':color,
                 'productid':productid,
                 'price':price }
+
     # make a request to the server
     req = hr.get(config['proposeurl'], params)
     
-    if 'error' in hr.getJSON(req):
+    if 'error' in hr.getJSON(req) or 'note' in hr.getJSON(req):
         raise RuntimeError('proposedPage: something else went wrong with:\n{}\n{}'.format(hr.getJSON(req), params))
     
     # get the server's response in JSON-form    
-    effect = hr.getJSON(req)['effect'] 
+    get = hr.getJSON(req)
+    effect = get['effect'] 
 
     error   = effect['Error']
     if error is not None:

@@ -4,7 +4,6 @@ import requests
 from config import config
 
 def get(url, params):
-    #print "Tried getting {} on url {}".format(params, url)
     # make a get request
     while True:
         try:
@@ -12,6 +11,7 @@ def get(url, params):
         except requests.ConnectionError:
             if config['verbose']:
                 print "Connection Error in get"
+                print "Tried getting {} on url {}".format(params, url)
             pass
 
 def post(url, params):
