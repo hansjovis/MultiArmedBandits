@@ -66,12 +66,11 @@ class Betas():
         for beta, obeta in zip(self.betas, other.betas):
             beta.add(obeta)
 
-    #TODO: wat is hier fout aan?
     def updateBeta(self, index):
-        self.betas.index(index).updateBeta(1)
+        self.betas[index].updateBeta(1)
 
     def updateAlpha(self, index):
-        self.betas.index(index).updateAlpha(1)
+        self.betas[index].updateAlpha(1)
 
 class Distribution():
     """ Class that covers all distributions. Call get to get a random value.
@@ -122,14 +121,18 @@ class Distribution():
                 self.distribution.updateAlpha(mapHeader[value])
             else:
                 self.distribution.updateBeta(mapHeader[value])
+        #TODO: change for productid
         elif self.dtype == 'disc':
-            #TODO: wat is hier fout aan?
             if success:
-                print mapping[key][value]
-                self.distribution.updateAlpha(mapping[key][value])
+                if key == 'productid':
+                    self.distribution.updateAlpha(value-10)
+                else:
+                    self.distribution.updateAlpha(mapping[key][value])
             else:
-                print mapping[key][value]
-                self.distribution.updateBeta(mapping[key][value])
+                if key == 'productid':
+                    self.distribution.updateBeta(value-10)
+                else:
+                    self.distribution.updateBeta(mapping[key][value])
         else:
             if success:
                 self.distribution.updateAlpha(float(value)/50)
