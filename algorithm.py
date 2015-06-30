@@ -61,7 +61,7 @@ class Algorithm:
                 header, ad_type, color, product_id, price
                 To learn from
             """
-        if(rnd.random < self.eta):
+        if rnd.random < self.eta:
             header = rnd.choice(['5','15','35'])
             ad_type = rnd.choice(['Banner','Skyscraper','Square'])
             color = rnd.choice(['Black','Blue','Green','Red','White'])
