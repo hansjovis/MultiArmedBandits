@@ -16,6 +16,16 @@ types = {'header': 'ord',
          'productid': 'disc',
          'price': 'flt'}
 
+mapping = {'header': {'5': 0, '15': 1, '35': 2},
+           'adtype': {'skyscraper': 0, 'square': 1, 'banner': 2},
+           'color': {'green': 0, 'blue': 1, 'red': 2, 'black': 3, 'white': 4},
+           }
+
+mapHeader = {
+    '5': 0,
+    '15': 0.5,
+    '35': 1
+}
 
 class Beta():
     def __init__(self):
@@ -28,11 +38,11 @@ class Beta():
     def getBest(self):
         return scipy.stats.beta(self.alpha, self.beta).mean()
 
-    def updateAlpha(self):
-        self.alpha += 1
+    def updateAlpha(self, value):
+        self.alpha += value
 
-    def updateBeta(self):
-        self.beta += 1
+    def updateBeta(self, value):
+        self.beta += value
 
     def add(self, other):
         self.alpha += other.alpha
@@ -56,11 +66,12 @@ class Betas():
         for beta, obeta in zip(self.betas, other.betas):
             beta.add(obeta)
 
-    def updateBeta(self):
-        [beta.updateAlpha() for beta in self.betas]
+    #TODO: wat is hier fout aan?
+    def updateBeta(self, index):
+        self.betas.index(index).updateBeta(1)
 
-    def updateAlpha(self):
-        [beta.updateAlpha() for beta in self.betas]
+    def updateAlpha(self, index):
+        self.betas.index(index).updateAlpha(1)
 
 class Distribution():
     """ Class that covers all distributions. Call get to get a random value.
@@ -105,11 +116,25 @@ class Distribution():
     def add(self, other):
         self.distribution.add(other.distribution)
 
-    def updateDistribution(self, success):
-        if success:
-            self.distribution.updateAlpha()
+    def updateDistribution(self, value, success, key):
+        if self.dtype == 'ord':
+            if success:
+                self.distribution.updateAlpha(mapHeader[value])
+            else:
+                self.distribution.updateBeta(mapHeader[value])
+        elif self.dtype == 'disc':
+            #TODO: wat is hier fout aan?
+            if success:
+                print mapping[key][value]
+                self.distribution.updateAlpha(mapping[key][value])
+            else:
+                print mapping[key][value]
+                self.distribution.updateBeta(mapping[key][value])
         else:
-            self.distribution.updateBeta()
+            if success:
+                self.distribution.updateAlpha(float(value)/50)
+            else:
+                self.distribution.updateBeta(1 - (float(value)/50))
 
 class DataGenerator():
     def __init__(self, models=None):
@@ -136,9 +161,9 @@ class DataGenerator():
             point.update({key: self.distribution[key].getBest()})
         return point
 
-    def updateDistribution(self, success):
+    def updateDistribution(self, ad_data, success):
         for key in self.distribution:
-            self.distribution[key].updateDistribution(success)
+            self.distribution[key].updateDistribution(ad_data[key], success, key)
 
     def merge(self, models):
         self.distribution = models[0].distribution
