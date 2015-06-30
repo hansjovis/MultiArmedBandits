@@ -35,7 +35,7 @@ class Beta():
     def get(self):
         return scipy.stats.beta(self.alpha, self.beta).rvs()
 
-    def getBest(self):
+    def getMean(self):
         return scipy.stats.beta(self.alpha, self.beta).mean()
 
     def updateAlpha(self, value):
@@ -60,7 +60,9 @@ class Betas():
         return [beta.get() for beta in self.betas]
 
     def getBest(self):
-        return [beta.getBest() for beta in self.betas]
+        means = [beta.getMean() for beta in self.betas]
+        maxbeta = means.index(max(means))
+        return self.betas[maxbeta].get()
 
     def add(self, other):
         for beta, obeta in zip(self.betas, other.betas):
@@ -103,13 +105,13 @@ class Distribution():
 
     def getBest(self):
         if self.dtype == 'ord':
-            v = self.distribution.getBest()
+            v = self.distribution.getMean()
             return np.int(v / self.thresh)
         elif self.dtype == 'disc':
             vs = self.distribution.getBest()
             return np.argmax(vs)
         else:
-            v = self.distribution.getBest()
+            v = self.distribution.getMean()
             return self.mn + v * (self.mx - self.mn)
 
     def add(self, other):
@@ -163,7 +165,8 @@ class DataGenerator():
             point.update({key: self.distribution[key].getBest()})
         return point
 
-    def updateDistribution(self, ad_data, success):
+    def updateDistribution(self, ad_data, success, context):
+        #TODO: use context
         for key in self.distribution:
             self.distribution[key].updateDistribution(ad_data[key], success, key)
 

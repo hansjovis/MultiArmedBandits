@@ -62,7 +62,13 @@ class Algorithm:
                 To learn from
             """
         if(rnd.random < self.eta):
-            return self.convert(self.predictor.getPoint(context))
+            header = rnd.choice(['5','15','35'])
+            ad_type = rnd.choice(['Banner','Skyscraper','Square'])
+            color = rnd.choice(['Black','Blue','Green','Red','White'])
+            product_id = rnd.randint(10,26)
+            price = rnd.randint(0,50)
+
+            return header, ad_type, color, product_id, price
         else:
             return self.convert(self.predictor.getBestPoint(context))
 
