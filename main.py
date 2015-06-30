@@ -39,7 +39,7 @@ def main(max_its=config['max_its'], verbose=True):
         run_id = run_id % 50000
 
 if __name__ == "__main__":
-    if sys.argv[1] and sys.argv[1] == 'meta':
+    if len(sys.argv) > 0 and sys.argv[1] == 'meta':
         meta_model_main()
     else:
         main()
