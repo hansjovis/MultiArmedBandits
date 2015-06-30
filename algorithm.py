@@ -83,7 +83,7 @@ class Algorithm:
         """ Saves the model to new file """
         if model is None:
             model = self.lastmodel()
-        with open("models/model{}".format(model + 1), 'wb') as openfile:
+        with open(os.path.join("models", "model{}".format(model + 1)), 'wb') as openfile:
             pickle.dump(self.predictor, openfile)
 
 
