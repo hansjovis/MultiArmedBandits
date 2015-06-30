@@ -27,6 +27,7 @@ class Algorithm:
 				self.predictor = pickle.load("models/" + model)
 		else:
 			self.predictor = model
+
 	def convert(self, data):
 		""" Uses mapping as defined above to map integers to their
 			discrete representations.

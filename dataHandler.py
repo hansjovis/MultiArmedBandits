@@ -31,6 +31,8 @@ class Beta():
         self.alpha += other.alpha
         self.beta += other.beta
 
+    def updateDistribution(self):
+        pass
 
 class Betas():
     """ Class that covers multiple betas to use for discrete,
@@ -49,6 +51,8 @@ class Betas():
         for beta, obeta in zip(self.betas, other.betas):
             beta.add(obeta)
 
+    def updateDistribution(self):
+        pass
 
 class Distribution():
     """ Class that covers all distributions. Call get to get a random value.
@@ -94,6 +98,8 @@ class Distribution():
     def add(self, other):
         self.distribution.add(other.distribution)
 
+    def updateDistribution(self):
+        pass
 
 class DataGenerator():
     def __init__(self, models=None):
@@ -120,6 +126,9 @@ class DataGenerator():
         for key in self.distribution:
             point.update({key: self.distribution[key].get(trial, successes)})
         return point
+
+    def updateDistribution(self):
+        pass
 
     def merge(self, models):
         self.distribution = models[0].distribution
