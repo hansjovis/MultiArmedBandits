@@ -18,6 +18,9 @@ def getContext(run_id, i):
         from the server.
     """ 
 
+    if config['verbose']:
+        print "Getting context"
+
     params = {  'teamid':config['teamid'], 
                 'teampw':config['teampw'], 
                 'runid':run_id, 
@@ -42,6 +45,9 @@ def proposePage(run_id, i, header, adtype, color, productid, price):
         or not.
     """
     
+    if config['verbose']:
+        print "Proposing page"
+
     params = {  'teamid':config['teamid'],
                 'teampw':config['teampw'],
                 'runid':run_id,
@@ -53,7 +59,7 @@ def proposePage(run_id, i, header, adtype, color, productid, price):
                 'price':price }
     # make a request to the server
     req = hr.get(config['proposeurl'], params)
-	
+    
     if 'error' in hr.getJSON(req):
         raise RuntimeError('proposedPage: something else went wrong with:\n{}\n{}'.format(hr.getJSON(req), params))
     

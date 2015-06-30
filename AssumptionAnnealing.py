@@ -5,30 +5,61 @@ from algorithm import Algorithm
 from copy import copy, deepcopy
 import serverCommunication
 
-def convert(context):
-    if 'Language' in context:
-        context['Language'] = {'EN': 0, 'NL': 1, 'GE': 2}[context['Language']]
-    if 'color' in context:
-        context['color']    = {'red':0, 'green':1, 'blue':2, 'white':3, 'black':4}[context['color']]
-    if 'Age' in context:
-        context['Age'] = int(context['Age'])
-    if 'Agent' in context:
-        context['Agent'] = {'OSX': 0, 'Linux': 1, 'Windows':2, 'mobile':3}[context['Agent']]
-    if 'price' in context:
-        context['price'] = float(context['price'])
-    if 'header' in context:
-        context['header'] = int(context['header'])
-    if 'Referer' in context:
-        context['Referer'] = {'Bing':0, 'Google': 1, 'NA':2}[context['Referer']]
-    if 'adtype' in context:
-        context['adtype'] = {'square':0, 'banner':1, 'skyscraper':2}[context['adtype']]
-    if 'ID' in context:
-        context['ID'] = int(context['ID'])
-    if 'productid' in context:
-        context['productid'] = int(context['productid'])
-    return context
+def convert(context, num=True):
+    print "CONVERTING: ", context
+    context = copy(context)
+    if type(context) is list or type(context) is tuple:
+        context = context2dict(context)
+    if num:
+        if 'Language' in context and type(context['Language']) is str:
+            context.update('Language',{'EN': 0, 'NL': 1, 'GE': 2}[context['Language']]) ## CONTINUE DIS
+        if 'color' in context and type(context['color']) is str:
+            context['color']    = {'red':0, 'green':1, 'blue':2, 'white':3, 'black':4}[context['color']]
+        if 'Age' in context and type(context['Age']) is str:
+            context['Age'] = int(context['Age'])
+        if 'Agent' in context and type(context['Agent']) is str:
+            context['Agent'] = {'OSX': 0, 'Linux': 1, 'Windows':2, 'mobile':3}[context['Agent']]
+        if 'price' in context and type(context['price']) is str:
+            context['price'] = float(context['price'])
+        if 'header' in context and type(context['header']) is str:
+            context['header'] = {'5':0, '15':1, '35':2}[context['header']]
+        if 'Referer' in context and type(context['Referer']) is str:
+            context['Referer'] = {'Bing':0, 'Google': 1, 'NA':2}[context['Referer']]
+        if 'adtype' in context and type(context['adtype']) is str:
+            context['adtype'] = {'square':0, 'banner':1, 'skyscraper':2}[context['adtype']]
+        if 'ID' in context and type(context['ID']) is str:
+            context['ID'] = int(context['ID'])
+        if 'productid' in context and type(context['productid']) is str:
+            context['productid'] = int(context['productid'])
+        print "CONVERTED TO NUM: ", context
+        return context
+    else:
+        if 'Language' in context and type(context['Language']) is not str:
+            context['Language'] = ['EN', 'NL', 'GE'][int(context['Language'])]
+        if 'color' in context and type(context['color']) is not str:
+            context['color']    = ['red', 'green', 'blue', 'white', 'black'][int(context['color'])]
+        if 'Age' in context and type(context['Age']) is not str:
+            context['Age'] = str(context['Age'])
+        if 'Agent' in context and type(context['Agent']) is not str:
+            context['Agent'] = ['OSX', 'Linux', 'Windows', 'mobile'][int(context['Agent'])]
+        if 'price' in context and type(context['price']) is not str:
+            context['price'] = str(context['price'])
+        if 'header' in context and type(context['header']) is not str:
+            context['header'] = str(context['header'])
+        if 'Referer' in context and type(context['Referer']) is not str:
+            context['Referer'] = ['Bing', 'Google', 'NA'][int(context['Referer'])]
+        if 'adtype' in context and type(context['adtype']) is not str:
+            context['adtype'] = ['square', 'banner', 'skyscraper'][int(context['adtype'])]
+        if 'ID' in context and type(context['ID']) is not str:
+            context['ID'] = str(context['ID'])
+        if 'productid' in context and type(context['productid']) is not str:
+            context['productid'] = str(int(context['productid']))
+        print "CONVERTED TO STR: ", context
+        return context
+    
 
-
+def context2dict(context):
+    return dict((k,v) for k,v in zip(['ID', 'Agent', 'Language', 'Age', 'Referer'], context))
 
 class MetaModel:
     """ Metamodels are a kind of ensemble,
@@ -74,17 +105,14 @@ class MetaModel:
         run_id = np.random.randint(self.opts['run_id_min'], self.opts['run_id_max'])
         for i in range(self.opts['trainits']):
             print "Train iteration {}".format(i)
-            context = serverCommunication.getContext(run_id, i)
-            if type(context) is tuple:
-                context = dict((k,v) for k,v in zip(['ID', 'Agent', 'Language', 'Age', 'Referer'], context))
-                context = convert(context)
-            choices = [convert(model.choose(context, 1)) for model in self.models]
+            context = convert(serverCommunication.getContext(run_id, i))
+
+            choices = [model.choose(context, 1) for model in self.models]
             for model, choice in zip(self.models, choices):
-                result = serverCommunication.proposePage(
-                                                run_id, i, choice['header'],
-                                         choice['adtype'], choice['color'], 
-                                      choice['productid'], choice['price'])
-                model.learn(context, choice, result)
+                result = serverCommunication.proposePage(run_id, i,
+                    *[convert(choice, False)[k] for k in ['header', 'adtype', 'color', 'productid', 'price']]
+                )
+                model.learn(convert(context), choice, result)
     
     def evaluate(self):
         """ Evaluate the models by making them exploit and pick the best.
@@ -94,13 +122,14 @@ class MetaModel:
         run_id = np.random.randint(self.opts['run_id_min'], self.opts['run_id_max'])
         results = [0]*len(self.models)
         for i in range(self.opts['testits']):
-            context = serverCommunication.getContext(run_id, i)
+            context = convert(serverCommunication.getContext(run_id, i))
+            
             choices = [model.choose(context, 0) for model in self.models]
+            print choices
             for j, choice in enumerate(choices):
-                results[j] += serverCommunication.proposePage(
-                                run_id, i, choice['header'],
-                         choice['adtype'], choice['color'], 
-                      choice['productid'], choice['price'])
+                results[j] += serverCommunication.proposePage(run_id, i,
+                    *[convert(choice, False)[k] for k in ['header', 'adtype', 'color', 'productid', 'price']])
+            print "Result: {}".format(np.max(results))
         return self.models[np.argmax(results)], self.hasconverged(results)
     
     def extend(self, model):
@@ -143,11 +172,13 @@ class Model:
             @param epsilon {float} exploration probability
             @return {dict} containing choice values
         """
-        if np.random.uniform() < epsilon:
-            return self.randomChooser.make_selection(context)
-        else:
-            return self.maximumlikelihood(context)
-    
+        selection = convert(self.randomChooser.make_selection(context))
+        if np.random.uniform() > epsilon:
+            # Replace the variables we model
+            selection.update(self.maximumlikelihood(context))     
+        print "CHOSE:", selection
+        return selection
+
     def maximumlikelihood(self, context):
         """ Uses expectation maximization to get an estimate of the best variables:
             - Freeze all but one variable
@@ -165,7 +196,8 @@ class Model:
                 while prev < curr: # Until you reached max
                     prev = curr
                     curr = self.predict(context, var, prev + 2*direction - 1)
-                self.estimates[tuple(var)] = prev # Update estimate
+                self.estimates[var] = prev # Update estimate
+        return self.estimates
         
     def predict(self, context, variable=None, estimate=None):
         """ Predicts the value given context variables.
@@ -179,9 +211,10 @@ class Model:
         """
         if variable is not None:
             context = copy(context)
-            cur_estimates.update({(variable,): estimate})
-            context.update(cur_estimates)
+            context.update(self.estimates)
+            context.update({(variable,): estimate})
         prediction = 0
+        print context
         for vlist in self.variables:
             prediction += self.betas[tuple(vlist)] * np.prod([context[v] for v in vlist])
         return prediction
@@ -193,6 +226,7 @@ class Model:
             @param result {float} gain (succes * reward)
             @return {void} this function changes the object
         """
+        print "CONTEXT W", context, choices, result
         context.update(choices)
         prediction = self.predict(context)
         update = -self.lr * (prediction - result)
@@ -203,7 +237,7 @@ class Model:
     def extend(self, var):
         """ Extend the model with variable var
             @param var {string} variable from context or choices
-            @return {void} this function changes the object
+            @return {Model} this method returns self
         """
         for v in self.variables:
             b = self.betas[v]
@@ -212,3 +246,4 @@ class Model:
         self.variables.append((var,))
         self.betas.update({(var,): 0})
         self.estimates.update({var: 0})
+        return self
