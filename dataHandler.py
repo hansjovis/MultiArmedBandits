@@ -121,7 +121,6 @@ class Distribution():
                 self.distribution.updateAlpha(mapHeader[value])
             else:
                 self.distribution.updateBeta(mapHeader[value])
-        #TODO: change for productid
         elif self.dtype == 'disc':
             if success:
                 if key == 'productid':
