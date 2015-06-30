@@ -9,7 +9,7 @@ mapping = {'header': {0: '5', 1: '15', 2: '35'},
            }
 
 
-class ThompsonSampling:
+class Algorithm:
     def __init__(self, model=None, context=None):
         """ Constructor for Algorithm.
 			Optional arg model: if string, loads corresponding file
